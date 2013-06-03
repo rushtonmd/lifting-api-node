@@ -1,0 +1,26 @@
+{
+  "name": "lifting-api",
+  "version": "0.0.8",
+  "private": true,
+  "scripts": {
+    "start": "node lifting-api.js"
+  },
+  "dependencies": {
+    "express": "3.2.4",
+    "ejs": "*",
+    "less-middleware": "*",
+    "jquery": "*",
+    "mocha" : "*",
+    "chai": "*",
+    "supertest": "*",
+    "cookie": "*",
+    "mongodb": "*",
+    "connect-redis": "*",
+    "bcrypt": "*",
+    "underscore": "*"
+  },
+  "subdomain": "rushtonmd-lifting-api-node",
+  "engines": {
+    "node": "0.8.x"
+  }
+}
