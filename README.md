@@ -1,2 +1,3 @@
-lifting-api-node
+Lifting-API using Node.js
 ================
+
