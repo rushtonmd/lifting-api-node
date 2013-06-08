@@ -3,10 +3,11 @@ var liftingLib = require('../lib/lifting-lib');
 module.exports = {
 
   getUser: function(req, res) {
-    console.log("Username: " + req.params.username);
     liftingLib.getUser(req.params.username, function(err, user) {
-      if (user) res.json(user);
-      else res.json('0');
+      if (err) res.jsonp(400, {error: err.message});
+      //if (user) res.json(user);
+
+      else res.jsonp(user);
     });
   },
 
@@ -14,7 +15,6 @@ module.exports = {
     console.log("Getting all lifts for user " + req.params.username);
     liftingLib.getAllLifts(req.params.username, function(err, lifts) {
       if (lifts) {
-        req.session.marco = 'polo';
         res.jsonp(lifts);
       } else res.send('0');
     });
@@ -22,7 +22,7 @@ module.exports = {
   getSingleLift: function(req, res) {
     console.log("Getting lift number " + req.params.liftid + " for user " + req.params.username);
     liftingLib.getSingleLift(req.params.username, req.params.liftid, function(err, lift) {
-      if (lift) res.send(lift);
+      if (lift) res.jsonp(lift);
       else res.send('0');
     });
   },
@@ -30,17 +30,17 @@ module.exports = {
     console.log(req.session.marco);
     console.log("Getting all lift names for user " + req.params.username);
     liftingLib.getAllLiftNames(req.params.username, function(err, liftnames) {
-      if (liftnames) res.send(liftnames);
+      if (liftnames) res.jsonp(liftnames);
       else res.send('0');
     });
   },
   addNewLiftName: function(req, res) {
     //if (req.xhr) {
+
     liftingLib.addNewLiftName(req.params.username, req.body.newLiftName, req.body.muscleGroup, function(err, liftname) {
-      console.log("Adding new lift name " + req.body.newLiftName + " into muscle group " + req.body.muscleGroup);
-      if (err) res.jsonp(err);
+      console.log("ERROR: " + err);
+      if (err) res.jsonp(400, {error: err.message});
       else res.jsonp(liftname);
-      console.log(liftname);
     });
     //}
     
@@ -49,8 +49,7 @@ module.exports = {
   deleteLiftName: function(req, res) {
     //if (req.xhr) {
     liftingLib.deleteLiftName(req.params.username, req.body.liftName, req.body.muscleGroup, function(err, liftname) {
-      console.log("Removing lift name " + req.body.liftName + " from muscle group " + req.body.muscleGroup);
-      if (err) res.jsonp(err);
+      if (err) res.jsonp(400, err);
       else res.jsonp(liftname);
       console.log(liftname);
     });
@@ -69,12 +68,21 @@ module.exports = {
 
   addNewLift: function(req, res) {
     //if (req.xhr) {
-    liftingLib.addNewLift(req.params.username, req.body.newlift, function(err, lift) {
-      console.log(lift);
-      res.send(err);
+    liftingLib.addNewLift(req.params.username, req.body.newLift, function(err, lift) {
+      if (err) res.jsonp(400, {error: err.message});
+      else res.jsonp(lift);
     });
     //}
-    res.send(lift);
+  },
+
+  deleteLift: function(req, res) {
+    //if (req.xhr) {
+      console.log('Deleting lift ' + req.params.liftid);
+    liftingLib.deleteLift(req.params.username, req.params.liftid, function(err, lift) {
+      if (err) res.jsonp(400, {error: err.message});
+      else res.jsonp(lift);
+    });
+    //}
   },
 
 
@@ -85,6 +93,7 @@ module.exports = {
   // },
 
   getIndex: function(req, res) {
+
     res.render('index');
   },
 
@@ -121,7 +130,6 @@ module.exports = {
   // },
 
   signup: function(req, res) {
-    console.log('Trying to create user as: ' + req.body.username + " : " + req.body.password);
     liftingLib.createUser(req.body.username, req.body.email, req.body.password, function(err, user) {
       if (err) res.jsonp(400, {error: err.message});
       else res.jsonp(user);

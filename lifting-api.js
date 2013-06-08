@@ -37,31 +37,46 @@ app.use(require('less-middleware')({
 app.use(express.static(path.join(__dirname, 'public')));
 
 // development only
-if ('local' == app.get('env') || true) {
-  app.use(express.errorHandler());
+if ('local' == app.get('env')) {
+  app.use(express.errorHandler({
+    showStack: true,
+    dumpExceptions: true
+  }));
+} else {
+  app.use(function(err, req, res, next) {
+    res.status(500);
+    res.render('500');
+  });
+
 }
 
 //app.get('/', routes.getIndex);
 // app.get('/users', user.list);
-app.get('/test', function(req, res) {
-  res.jsonp("hello");
+app.get('/marco', liftingLib.basicApiAuth, function(req, res) {
+  res.jsonp("polo");
 });
 
-app.get('/api/user/new', liftingLib.basicApiAuth, routes.signup);
-app.get('/api/user/:username', liftingLib.basicApiAuth, routes.getUser);
+app.post('/api/users/new', liftingLib.basicApiAuth, routes.signup);
+app.get('/api/users/:username', liftingLib.basicApiAuth, routes.getUser);
 
-app.get('/api/user/:username/workouts', liftingLib.basicApiAuth, routes.getAllLifts);
+app.get('/api/users/:username/workouts', liftingLib.basicApiAuth, routes.getAllLifts);
 
-app.get('/api/user/:username/liftnames', liftingLib.basicApiAuth, routes.getAllLiftNames);
-app.get('/api/user/:username/liftnames/new', liftingLib.basicApiAuth, routes.addNewLiftName);
-app.get('/api/user/:username/liftnames/delete', liftingLib.basicApiAuth, routes.deleteLiftName);
+app.get('/api/users/:username/liftnames', liftingLib.basicApiAuth, routes.getAllLiftNames);
+app.post('/api/users/:username/liftnames/new', liftingLib.basicApiAuth, routes.addNewLiftName);
+app.del('/api/users/:username/liftnames/:liftnameid', liftingLib.basicApiAuth, routes.deleteLiftName);
 
-app.get('/api/user/:username/musclegroups', liftingLib.basicApiAuth, routes.getAllMuscleGroups);
+app.get('/api/users/:username/musclegroups', liftingLib.basicApiAuth, routes.getAllMuscleGroups);
 //app.get('/api/user/:username/musclegroups/new', liftingLib.basicApiAuth, routes.addNewMuscleGroup);
 
-app.get('/api/user/:username/lifts', liftingLib.basicApiAuth, routes.getAllLifts);
-//app.get('/api/user/:username/lifts/:liftid', liftingLib.basicApiAuth, routes.getSingleLift);
-//app.post('/api/user/:username/lifts/new', routes.addNewLift);
+app.get('/api/users/:username/lifts', liftingLib.basicApiAuth, routes.getAllLifts);
+app.get('/api/users/:username/lifts/:liftid', liftingLib.basicApiAuth, routes.getSingleLift);
+app.post('/api/users/:username/lifts/new', liftingLib.basicApiAuth, routes.addNewLift);
+app.del('/api/users/:username/lifts/:liftid', liftingLib.basicApiAuth, routes.deleteLift);
+
+app.get('*', function(req, res) {
+  res.status(404);
+  res.render('404');
+});
 
 
 http.createServer(app).listen(app.get('port'), function() {
@@ -69,7 +84,7 @@ http.createServer(app).listen(app.get('port'), function() {
   console.log('LiftingAPI is in the ' + process.env['NODE_ENV'] + ' environment.')
   liftingLib.openDatabase(function(error, client) {
     if (error) console.log('There was a problem opening the database: ' + error);
-    else console.log('NodeDog databases all good. Woof.');
+    else console.log('LiftingAPI databases all good. Boss.');
   });
   console.log(liftingLib.generateNewApiKey());
 });
